@@ -13,7 +13,6 @@ schema
 .has().lowercase(1)   
 .has().symbols(1)    
 .has().digits(2) 
-.has().symbols(['[-(-)-]-"-='])
 .has().not().spaces()
 .is().not().oneOf(['Passw0rd', 'Password123']); 
 
@@ -63,7 +62,7 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign({ userId: user._id }, "L1i982P2a109Neo04", {
+            token: jwt.sign({ userId: user._id }, process.env.TOKEN, {
               expiresIn: "48h",
             }),
           });

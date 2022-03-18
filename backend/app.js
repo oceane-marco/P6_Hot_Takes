@@ -1,19 +1,30 @@
 const express = require("express");
 const helmet = require("helmet");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const mongoose = require("mongoose");
 const path = require("path");
-
+const rateLimit = require("express-rate-limit");
 
 
 const userRoutes = require("./routes/user");
 const sauceRoutes = require("./routes/sauce");
 const app = express();
 
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 
 mongoose
   .connect(
-    "mongodb+srv://oceane-marco:MDBjjsqmism1971@laothcluster.rsc4u.mongodb.net/HOT-TAKES?retryWrites=true&w=majority",
+    process.env.DATABASE_CONNECT,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
@@ -33,17 +44,6 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json())
-const limiter = new Bottleneck({
-  reservoir: 40, // initial value
-  reservoirIncreaseAmount: 2,
-  reservoirIncreaseInterval: 1000, // must be divisible by 250
-  reservoirIncreaseMaximum: 40,
-
-  // also use maxConcurrent and/or minTime for safety
-  maxConcurrent: 5,
-  minTime: 250, // pick a value that makes sense for your use case
-});
-
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(helmet());
 app.use("/api/auth", userRoutes);
