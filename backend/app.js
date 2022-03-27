@@ -24,7 +24,7 @@ app.use(limiter)
 
 mongoose
   .connect(
-    process.env.DATABASE_CONNECT,
+    `mongodb+srv://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_NAME}.rsc4u.mongodb.net/${process.env.DATABASE_COLLECTION_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
